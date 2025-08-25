@@ -1,0 +1,9 @@
+@CashFlow.Api_HostAddress = http://localhost:5062
+
+POST {{CashFlow.Api_HostAddress}}/me/transactions/
+Content-Type: application/json
+{
+  
+}
+
+###
