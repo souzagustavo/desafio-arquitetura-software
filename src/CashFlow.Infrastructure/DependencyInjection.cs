@@ -1,8 +1,7 @@
-﻿using CashFlow.Application.Account;
+﻿using CashFlow.Application.Store;
 using CashFlow.Application.Common.Storage;
 using CashFlow.Application.Transactions;
-using CashFlow.Domain.User;
-using CashFlow.Infrastructure.Account;
+using CashFlow.Infrastructure.Store;
 using CashFlow.Infrastructure.Common.Persistence;
 using CashFlow.Infrastructure.Common.Storage;
 using CashFlow.Infrastructure.Transaction;
@@ -24,12 +23,6 @@ public static class DependencyInjection
         return services;
     }
 
-    public static IdentityBuilder AddIdentityServer(this IServiceCollection services)
-    {
-        return services.AddIdentityCore<UserEntity>()
-            .AddEntityFrameworkStores<CashFlowDbContext>();        
-    }
-
     private static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration)
     {
         var cs = configuration.GetConnectionString("Postgres");
@@ -37,7 +30,7 @@ public static class DependencyInjection
         services.AddDbContext<CashFlowDbContext>(options => options.UseNpgsql(cs));
 
         services.AddScoped<ITransationsRepository, TransactionRepository>();
-        services.AddScoped<IAccountRepository, AccountRepository>();
+        services.AddScoped<IStoreRepository, StoreRepository>();
 
         return services;
     }
@@ -49,5 +42,5 @@ public static class DependencyInjection
         return services;
     }
 
-    
+
 }

@@ -1,4 +1,4 @@
-using CashFlow.Account.Api.Endpoints;
+using CashFlow.Store.Api.Endpoints;
 using CashFlow.Api;
 using Microsoft.EntityFrameworkCore;
 

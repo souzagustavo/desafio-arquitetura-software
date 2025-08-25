@@ -1,17 +1,17 @@
-﻿using CashFlow.Application.Account.Handlers;
+﻿using CashFlow.Application.Store.Handlers;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CashFlow.Api.Endpoints.Account
+namespace CashFlow.Api.Endpoints.Store
 {
     public static class CreateEndpoint
     {
-        public static RouteGroupBuilder MapCreateAccountEndpoint(this RouteGroupBuilder group)
+        public static RouteGroupBuilder MapCreateStoreEndpoint(this RouteGroupBuilder group)
         {
             group.MapPost("/", CreateAsync)
-                .WithTags("Accounts")
-                .WithName("CreateAccount")
-                .WithSummary("Create a new account.")
-                .WithDescription("Creates a new account for the authenticated user.")
+                .WithTags("Stores")
+                .WithName("CreateStore")
+                .WithSummary("Create a new store.")
+                .WithDescription("Creates a new store for the authenticated user.")
                 .ProducesValidationProblem()
                 .Produces(StatusCodes.Status201Created)
                 .Produces(StatusCodes.Status400BadRequest)
@@ -23,8 +23,8 @@ namespace CashFlow.Api.Endpoints.Account
         }
 
         private static async Task<IResult> CreateAsync(
-            [FromBody] CreateAccountRequest request,
-            ICreateAccountHandler handler,
+            [FromBody] CreateStoreRequest request,
+            ICreateStoreHandler handler,
             CancellationToken cancellationToken)
         {
             var response = await handler.HandleAsync(request, cancellationToken);
@@ -33,7 +33,7 @@ namespace CashFlow.Api.Endpoints.Account
                 return response.Errors.ToProblem();
             }
 
-            return Results.CreatedAtRoute("GetAccountById", new { id = response.Value.Id }, response.Value);
+            return Results.CreatedAtRoute("GetStoreById", new { id = response.Value.Id }, response.Value);
         }
     }
 }

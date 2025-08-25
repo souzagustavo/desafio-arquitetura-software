@@ -1,5 +1,5 @@
 ﻿
-namespace CashFlow.Account.Api.Endpoints
+namespace CashFlow.Store.Api.Endpoints
 {
     public class CurrentUserEndpointFilter : IEndpointFilter
     {

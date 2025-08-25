@@ -1,7 +1,7 @@
-﻿using CashFlow.Api.Endpoints.Account;
+﻿using CashFlow.Api.Endpoints.Store;
 using CashFlow.Api.Endpoints.Transactions;
 
-namespace CashFlow.Account.Api.Endpoints;
+namespace CashFlow.Store.Api.Endpoints;
 public static class EndpointGroupMapper
 {
     public static void MapAllEndpoints(this WebApplication app)
@@ -12,8 +12,8 @@ public static class EndpointGroupMapper
             .MapGroup("/transactions")
                 .MapCreateTransactionEndpoint()
                 .MapGetTransactionByIdEndpoint()                
-            .MapGroup("/account")                
-                .MapCreateAccountEndpoint()
-                .MapGetAccountByIdEndpoint();
+            .MapGroup("/store")                
+                .MapCreateStoreEndpoint()
+                .MapGetStoreByIdEndpoint();
     }
 }

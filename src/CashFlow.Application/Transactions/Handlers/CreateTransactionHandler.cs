@@ -3,7 +3,7 @@ using CashFlow.Application.Common.Handlers;
 
 namespace CashFlow.Application.Transactions.Handlers;
 
-public record CreateTransactionRequest(Guid AccountId, ETransactionType Type, decimal Amount, string? Description)
+public record CreateTransactionRequest(Guid StoreId, ETransactionType Type, decimal Amount, string? Description)
 {
     public DateTimeOffset OccurrentAt { get; private set; } = DateTimeOffset.UtcNow;
 }

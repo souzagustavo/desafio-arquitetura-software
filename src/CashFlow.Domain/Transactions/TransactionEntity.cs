@@ -1,12 +1,12 @@
 ﻿using CashFlow.Application.Common;
 using CashFlow.Application.Transactions;
-using CashFlow.Domain.Account;
+using CashFlow.Domain.Store;
 
 namespace CashFlow.Domain.Transactions
 {
     public class TransactionEntity : BaseEntity
     {
-        public Guid AccountId { get; set; }
+        public Guid StoreId { get; set; }
 
         public DateTimeOffset OccurrentAt { get; set; }
         public DateTimeOffset? ProcessedAt { get; set; } = null;
@@ -14,6 +14,6 @@ namespace CashFlow.Domain.Transactions
         public decimal Amount { get; set; }
         public string? Description { get; set; }
 
-        public virtual AccountEntity Account { get; set; } = null!;
+        public virtual StoreEntity Store { get; set; } = null!;
     }
 }
