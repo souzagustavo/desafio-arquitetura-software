@@ -9,6 +9,6 @@ namespace CashFlow.Application.Transactions
     {
         public partial TransactionEntity ToTransactionEntity(CreateTransactionRequest transactionRequest);
 
-        public partial GetTransactionResponse ToGetTransactionResponse(TransactionEntity transactionEntity);
+        public partial GetTransactionResponse ToTransactionResponse(TransactionEntity transactionEntity);
     }
 }

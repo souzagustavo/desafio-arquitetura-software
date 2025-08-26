@@ -25,11 +25,13 @@ namespace CashFlow.Api.Endpoints.Store
             IGetStoreByIdHandler handler,
             CancellationToken cancellationToken)
         {
-            var response = await handler.HandleAsync(id, cancellationToken);
+            var userId = Guid.NewGuid();
+
+            var response = await handler.HandleAsync(userId: userId, id: id, cancellationToken);
+            
             if (response.IsError)
-            {
                 return response.Errors.ToProblem();
-            }
+
             return Results.Ok(response.Value);
         }
     }

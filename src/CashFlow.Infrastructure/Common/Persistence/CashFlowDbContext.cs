@@ -1,15 +1,14 @@
-﻿using CashFlow.Domain.Store;
+﻿using CashFlow.Application.Common.Interfaces;
+using CashFlow.Domain.Store;
 using CashFlow.Domain.Transactions;
 using Microsoft.EntityFrameworkCore;
 
 namespace CashFlow.Infrastructure.Common.Persistence;
 
-public class CashFlowDbContext : DbContext
+public class CashFlowDbContext : DbContext, ICashFlowDbContext
 {
-    public DbSet<StoreEntity> Stores { get; set; } = null!;
-    public DbSet<StoreBalanceEntity> StoreBalances { get; set; } = null!;
-    public DbSet<TransactionEntity> Transactions { get; set; } = null!;
-    public DbSet<StoreBalanceDay> StoreBalanceDays { get; set; } = null!;
+    public DbSet<StoreEntity> Stores { get; set; }
+    public DbSet<TransactionEntity> Transactions { get; set; }
 
     public CashFlowDbContext(DbContextOptions<CashFlowDbContext> options)
         : base(options)

@@ -8,12 +8,12 @@ namespace CashFlow.Infrastructure.Store
     {
         public void Configure(EntityTypeBuilder<StoreEntity> builder)
         {
-            builder.HasMany(a => a.Transactions)
+            builder.HasMany(a => a.Purchases)
                    .WithOne(t => t.Store)
                    .HasForeignKey(t => t.StoreId)
                    .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasMany(a => a.DailyBalances)
+            builder.HasMany(a => a.Sales)
                    .WithOne(t => t.Store)
                    .HasForeignKey(t => t.StoreId)
                    .OnDelete(DeleteBehavior.Cascade);

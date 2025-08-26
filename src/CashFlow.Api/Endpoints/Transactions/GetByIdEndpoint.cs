@@ -26,11 +26,12 @@ public static class GetByIdEndpoint
         IGetTransactionByIdHandler handler,
         CancellationToken cancellationToken)
     {
-        var response = await handler.HandleAsync(id, cancellationToken);
+        var userId = Guid.NewGuid();
+
+        var response = await handler.HandleAsync(userId, id, cancellationToken);
+
         if (response.IsError)
-        {
             return response.Errors.ToProblem();
-        }
 
         return Results.Ok(response.Value);
     }

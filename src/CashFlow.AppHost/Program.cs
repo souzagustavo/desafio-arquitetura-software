@@ -3,13 +3,13 @@ var builder = DistributedApplication.CreateBuilder(args);
 var username = builder.AddParameter("username", value: "admin", secret: true);
 var password = builder.AddParameter("password", value: "123456", secret: true);
 
-var cashFlowDb = builder.AddPostgres("CashFlowDb", userName: username, password: password, port: 5432)
-    .AddDatabase("CashFlowDb", databaseName: "cash-flow");
-
-var identityServerDb = builder.AddPostgres("IdentityServerDb", userName: username, password: password, port: 5432)
-    .AddDatabase("IdentityServerDb", databaseName: "identity-server");
+var postgres = builder.AddPostgres("Postgres", userName: username, password: password, port: 5432);
 
 var redis = builder.AddRedis("Redis", port: 6379, password: password);
+
+var cashFlowDb = postgres.AddDatabase("CashFlowDb", databaseName: "cash-flow");
+
+var identityServerDb = postgres.AddDatabase("IdentityServerDb", databaseName: "identity-server");
 
 var identityserver = builder.AddProject<Projects.CashFlow_IdentifyServer_Api>("cash-flow-identifyserver-api")
     .WithReference(identityServerDb)

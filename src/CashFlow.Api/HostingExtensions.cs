@@ -4,6 +4,7 @@ using CashFlow.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
 using System.Text.Json.Serialization;
+using CashFlow.Application.Sales.Handlers;
 
 namespace CashFlow.Api;
 
@@ -14,14 +15,14 @@ public static class HostingExtensions
         builder.Services
             .ConfigureEndpoints()
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(); ;
+            .AddJwtBearer();        
 
         builder.Services
             .AddInfrastructure(builder.Configuration);
 
         builder.Services
-            .AddValidatorsFromAssemblyContaining<CreateTransactionValidator>()
-            .RegisterHandlersFromAssemblyContaining(typeof(CreateTransactionHandler));
+            .AddValidatorsFromAssemblyContaining<CreatePurchaseValidator>()
+            .RegisterHandlersFromAssemblyContaining(typeof(CreatePurchaseHandler));
 
         return builder;
     }
@@ -34,8 +35,8 @@ public static class HostingExtensions
             options.SwaggerDoc("v1", new OpenApiInfo
             {
                 Version = "v1",
-                Title = "Meu Bolso Api",
-                Description = "Uma Web API que gerencia transações financeiras",
+                Title = "CashFlow Api",
+                Description = "Uma Web API que gerencia transações financeiras das suas lojas",
                 Contact = new OpenApiContact
                 {
                     Name = "Gustavo Souza Silva",

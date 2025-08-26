@@ -1,4 +1,5 @@
-﻿using CashFlow.Application.Transactions;
+﻿using CashFlow.Application.Common;
+using CashFlow.Application.Transactions.Handlers;
 using CashFlow.Domain.Transactions;
 using CashFlow.Infrastructure.Common.Persistence;
 
@@ -8,7 +9,7 @@ namespace CashFlow.Infrastructure.Transaction
     {
         private readonly CashFlowDbContext _dbContext;
 
-        public TransactionRepository(CashFlowDbContext dbContext)
+        public TransactionRepository(CashFlowDbContext dbContext) 
         {
             _dbContext = dbContext;
         }
@@ -22,6 +23,28 @@ namespace CashFlow.Infrastructure.Transaction
         public async Task<TransactionEntity?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
         {
             return await _dbContext.Transactions.FindAsync(id, cancellationToken);
+        }
+
+        public async Task<PagedResult<TransactionEntity>> GetPagedAsync(
+            GetPagedTransactionsQuery filter,            
+            CancellationToken cancellationToken = default)
+        {
+            _dbContext.
+
+                _cashFlowDbContext.Stores
+            .Include(s => s.Transactions)
+            .Where(s => s.IdentityUserId == userId)
+            .SelectMany(s => s.Transactions)
+            .FirstOrDefaultAsync(t => t.Id == id);
+
+            return new PagedResult<TransactionEntity>
+            {
+                Items = items,
+                CurrentPage = filter.Page,
+                PageSize = filter.PageSize,
+                TotalItems = totalItems,
+                TotalPages = totalPages
+            };
         }
     }
 }

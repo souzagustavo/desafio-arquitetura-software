@@ -12,6 +12,5 @@ namespace CashFlow.Domain.Store
 
         public virtual StoreBalanceEntity Balance { get; set; } = null!;
         public virtual ICollection<TransactionEntity> Transactions { get; set; } = [];
-        public virtual ICollection<StoreBalanceDay> DailyBalances { get; set; } = [];
     }
 }

@@ -1,36 +1,43 @@
 ﻿using CashFlow.Application.Common.Handlers;
+using CashFlow.Application.Common.Interfaces;
 using ErrorOr;
 
 namespace CashFlow.Application.Store.Handlers
 {
-    public record CreateStoreRequest(Guid UserId, string Name);
+    public record CreateStoreRequest(string Name);
 
-    public record CreateStoreResponse(Guid Id);
+    public record CreatedStoreResponse(Guid Id);
 
     public interface ICreateStoreHandler : IHandler
     {
-        Task<ErrorOr<CreateStoreResponse>> HandleAsync(
+        Task<ErrorOr<CreatedStoreResponse>> HandleAsync(
+            Guid userId,
             CreateStoreRequest request,
             CancellationToken cancellationToken);
     }
 
     public class CreateStoreHandler : ICreateStoreHandler
     {
-        private readonly IStoreRepository _storeRepository;
+        private readonly ICashFlowDbContext _dbContext;
 
-        public CreateStoreHandler(IStoreRepository storeRepository)
+        public CreateStoreHandler(ICashFlowDbContext dbContext)
         {
-            _storeRepository = storeRepository;
+            _dbContext = dbContext;
         }
 
-        public async Task<ErrorOr<CreateStoreResponse>> HandleAsync(CreateStoreRequest request, CancellationToken cancellationToken)
+        public async Task<ErrorOr<CreatedStoreResponse>> HandleAsync(Guid userId, CreateStoreRequest request, CancellationToken cancellationToken)
         {
             var mapper = new StoreMapper();
             var entity = mapper.ToStoreEntity(request);
 
-            await _storeRepository.AddAsync(entity, cancellationToken);
+            entity.IdentityUserId = userId;
 
-            return new CreateStoreResponse(entity.Id);
+            await _dbContext.Stores.AddAsync(entity, cancellationToken);
+            await _dbContext.StoreBalances.AddAsync(new() { Store = entity }, cancellationToken);
+
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            return new CreatedStoreResponse(entity.Id);
         }
     }
 }

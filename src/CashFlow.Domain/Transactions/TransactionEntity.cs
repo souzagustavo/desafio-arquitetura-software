@@ -1,5 +1,4 @@
 ﻿using CashFlow.Application.Common;
-using CashFlow.Application.Transactions;
 using CashFlow.Domain.Store;
 
 namespace CashFlow.Domain.Transactions
@@ -8,11 +7,12 @@ namespace CashFlow.Domain.Transactions
     {
         public Guid StoreId { get; set; }
 
-        public DateTimeOffset OccurrentAt { get; set; }
         public DateTimeOffset? ProcessedAt { get; set; } = null;
-        public ETransactionType Type { get; set; }
-        public decimal Amount { get; set; }
-        public string? Description { get; set; }
+        public required ETransactionType Type { get; set; }
+        public required ETransactionStatus Status { get; set; } = ETransactionStatus.Pending;
+        public required EPaymentMethod PaymentMethod { get; set; }
+        public required decimal TotalAmount { get; set; } = 0;
+        public string? Notes { get; set; }
 
         public virtual StoreEntity Store { get; set; } = null!;
     }

@@ -1,5 +1,5 @@
-﻿using FluentValidation;
-using CashFlow.Application.Transactions.Handlers;
+﻿using CashFlow.Application.Transactions.Handlers;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CashFlow.Api.Endpoints.Transactions;
@@ -23,19 +23,19 @@ public static class CreateEndpoint
     }
 
     private static async Task<IResult> CreateAsync(
+        [FromRoute] Guid storeId,
         [FromBody] CreateTransactionRequest request,
         IValidator<CreateTransactionRequest> validator,
         ICreateTransationHandler handler,
         CancellationToken cancellationToken)
     {
-
         var validationResult = await validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
         {
             return Results.ValidationProblem(validationResult.ToDictionary());
         }
 
-        var response = await handler.HandleAsync(request, cancellationToken);
+        var response = await handler.HandleAsync(UserId: userId, StoreId: storeId, request, cancellationToken);
         if (response.IsError)
         {
             return response.Errors.ToProblem();

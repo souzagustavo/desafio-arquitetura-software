@@ -27,7 +27,9 @@ namespace CashFlow.Api.Endpoints.Store
             ICreateStoreHandler handler,
             CancellationToken cancellationToken)
         {
-            var response = await handler.HandleAsync(request, cancellationToken);
+            var userId = Guid.NewGuid();
+
+            var response = await handler.HandleAsync(userId, request, cancellationToken);
             if (response.IsError)
             {
                 return response.Errors.ToProblem();

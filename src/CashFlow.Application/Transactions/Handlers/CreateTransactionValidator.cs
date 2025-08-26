@@ -6,14 +6,14 @@ namespace CashFlow.Application.Transactions.Handlers
     {
         public CreateTransactionValidator()
         {
-            RuleFor(x => x.StoreId)
-                .NotEmpty().WithMessage("StoreId is required.");
-
-            RuleFor(x => x.Amount)
+            RuleFor(x => x.TotalAmount)
                 .GreaterThan(0).WithMessage("Amount must be greater than zero.");
 
             RuleFor(x => x.Type)
                 .IsInEnum().WithMessage("Type must be a valid transaction type.");
+
+            RuleFor(x => x.PaymentMethod)
+                .IsInEnum().WithErrorCode("PaymentMethod must be a valid payment method.");
         }
     }
 }

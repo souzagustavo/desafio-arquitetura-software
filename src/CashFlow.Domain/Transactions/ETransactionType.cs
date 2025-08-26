@@ -1,8 +1,8 @@
-﻿namespace CashFlow.Application.Transactions
+﻿namespace CashFlow.Domain.Transactions
 {
     public enum ETransactionType
     {
-        Credit = 1,
-        Debit = 2
+        Purchase = 1,
+        Sale = 2
     }
 }

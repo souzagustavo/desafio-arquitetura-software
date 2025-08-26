@@ -1,36 +1,46 @@
 ﻿using ErrorOr;
 using CashFlow.Application.Common.Handlers;
+using CashFlow.Domain.Transactions;
+using Microsoft.EntityFrameworkCore;
+using CashFlow.Application.Common.Interfaces;
 
 namespace CashFlow.Application.Transactions.Handlers;
 
-public record GetTransactionResponse(Guid Id, DateTimeOffset OccurrentAt,
-    ETransactionType Type, decimal Amount, string? Description);
+public record GetTransactionResponse(Guid Id, DateTimeOffset? ProcessedAt, 
+    ETransactionType Type, ETransactionStatus Status, EPaymentMethod PaymentMethod,
+    decimal TotalAmount, string? Notes);
 
 public interface IGetTransactionByIdHandler : IHandler
 {
     Task<ErrorOr<GetTransactionResponse>> HandleAsync(
+        Guid userId,
         Guid id,
         CancellationToken cancellationToken);
 }
 
 public class GetTransactionByIdHandler : IGetTransactionByIdHandler
 {
-    private readonly ITransationsRepository _transationsRepository;
+    private readonly ICashFlowDbContext _cashFlowDbContext;
 
-    public GetTransactionByIdHandler(ITransationsRepository transationsRepository)
+    public GetTransactionByIdHandler(ICashFlowDbContext cashFlowDbContext)
     {
-        _transationsRepository = transationsRepository;
+        _cashFlowDbContext = cashFlowDbContext;
     }
 
-    public async Task<ErrorOr<GetTransactionResponse>> HandleAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<ErrorOr<GetTransactionResponse>> HandleAsync(Guid userId, Guid id,
+        CancellationToken cancellationToken)
     {
-        var result = await _transationsRepository.GetByIdAsync(id, cancellationToken);
+        var result = await _cashFlowDbContext.Stores
+            .Include(s => s.Transactions)
+            .Where(s => s.IdentityUserId == userId)
+            .SelectMany(s => s.Transactions)
+            .FirstOrDefaultAsync(t => t.Id == id);
 
         if (result is null)
             return Error.NotFound(description: "Transaction not found.");
 
         var mapper = new TransactionMapper();
-        var response = mapper.ToGetTransactionResponse(result);
+        var response = mapper.ToTransactionResponse(result);
 
         return response;
     }

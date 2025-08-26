@@ -8,12 +8,12 @@ public static class EndpointGroupMapper
     {
         app.MapGroup("/me")
             .RequireAuthorization()
-            //.AddEndpointFilter<CurrentUserEndpointFilter>()
-            .MapGroup("/transactions")
-                .MapCreateTransactionEndpoint()
-                .MapGetTransactionByIdEndpoint()                
-            .MapGroup("/store")                
+            .ProducesValidationProblem()
+            .MapGroup("/stores")
                 .MapCreateStoreEndpoint()
-                .MapGetStoreByIdEndpoint();
+                .MapGetStoreByIdEndpoint()
+            .MapGroup("/{storeId:guid}/transactions")
+                .MapCreateTransactionEndpoint()
+                .MapGetTransactionByIdEndpoint();
     }
 }

@@ -1,11 +1,7 @@
-﻿using CashFlow.Application.Store;
+﻿using CashFlow.Application.Common.Interfaces;
 using CashFlow.Application.Common.Storage;
-using CashFlow.Application.Transactions;
-using CashFlow.Infrastructure.Store;
 using CashFlow.Infrastructure.Common.Persistence;
 using CashFlow.Infrastructure.Common.Storage;
-using CashFlow.Infrastructure.Transaction;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,12 +21,9 @@ public static class DependencyInjection
 
     private static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration)
     {
-        var cs = configuration.GetConnectionString("Postgres");
+        var cs = configuration.GetConnectionString("CashFlowDb");
 
-        services.AddDbContext<CashFlowDbContext>(options => options.UseNpgsql(cs));
-
-        services.AddScoped<ITransationsRepository, TransactionRepository>();
-        services.AddScoped<IStoreRepository, StoreRepository>();
+        services.AddDbContext<ICashFlowDbContext, CashFlowDbContext>(options => options.UseNpgsql(cs));
 
         return services;
     }

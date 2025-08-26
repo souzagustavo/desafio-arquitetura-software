@@ -1,5 +1,7 @@
 ﻿using CashFlow.Application.Common.Handlers;
+using CashFlow.Application.Common.Interfaces;
 using ErrorOr;
+using Microsoft.EntityFrameworkCore;
 
 namespace CashFlow.Application.Store.Handlers;
 
@@ -8,21 +10,25 @@ public record GetStoreResponse(Guid Id, string Name);
 public interface IGetStoreByIdHandler : IHandler
 {
     Task<ErrorOr<GetStoreResponse>> HandleAsync(
-        Guid Id,
+        Guid userId,
+        Guid id,
         CancellationToken cancellationToken);
 }
 
 public class GetStoreByIdHandler : IGetStoreByIdHandler
 {
-    private readonly IStoreRepository _storeRepository;
-    public GetStoreByIdHandler(IStoreRepository storeRepository)
+    private readonly ICashFlowDbContext _cashFlowDbContext;
+
+    public GetStoreByIdHandler(ICashFlowDbContext cashFlowDbContext)
     {
-        _storeRepository = storeRepository;
+        _cashFlowDbContext = cashFlowDbContext;
     }
 
-    public async Task<ErrorOr<GetStoreResponse>> HandleAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<ErrorOr<GetStoreResponse>> HandleAsync(Guid userId, Guid id, CancellationToken cancellationToken)
     {
-        var store = await _storeRepository.GetByIdAsync(id, cancellationToken);
+        var store =
+            await _cashFlowDbContext.Stores
+                .FirstOrDefaultAsync(s => s.IdentityUserId == userId && s.Id == id, cancellationToken);
 
         if (store is null)
             return Error.NotFound(description: "Store not found.");

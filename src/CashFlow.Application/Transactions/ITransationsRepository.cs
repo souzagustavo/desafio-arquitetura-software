@@ -1,8 +1,9 @@
-﻿using CashFlow.Domain.Transactions;
+﻿using CashFlow.Application.Common.Interfaces;
+using CashFlow.Domain.Transactions;
 
 namespace CashFlow.Application.Transactions
 {
-    public interface ITransationsRepository
+    public interface ITransationsRepository : IRepositoryBase<TransactionEntity>
     {
         Task AddAsync(TransactionEntity entity, CancellationToken cancellationToken);
 
