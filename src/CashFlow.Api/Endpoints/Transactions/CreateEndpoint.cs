@@ -23,19 +23,21 @@ public static class CreateEndpoint
     }
 
     private static async Task<IResult> CreateAsync(
-        [FromRoute] Guid storeId,
+        [FromRoute] Guid accountId,
         [FromBody] CreateTransactionRequest request,
         IValidator<CreateTransactionRequest> validator,
         ICreateTransationHandler handler,
         CancellationToken cancellationToken)
     {
+        var userId = Guid.NewGuid();
+
         var validationResult = await validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
         {
             return Results.ValidationProblem(validationResult.ToDictionary());
         }
 
-        var response = await handler.HandleAsync(UserId: userId, StoreId: storeId, request, cancellationToken);
+        var response = await handler.HandleAsync(UserId: userId, AccountId: accountId, request, cancellationToken);
         if (response.IsError)
         {
             return response.Errors.ToProblem();

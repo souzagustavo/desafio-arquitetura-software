@@ -1,10 +1,9 @@
-﻿using FluentValidation;
-using CashFlow.Application.Transactions.Handlers;
+﻿using CashFlow.Application.Transactions.Handlers;
 using CashFlow.Infrastructure;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
 using System.Text.Json.Serialization;
-using CashFlow.Application.Sales.Handlers;
 
 namespace CashFlow.Api;
 
@@ -15,14 +14,14 @@ public static class HostingExtensions
         builder.Services
             .ConfigureEndpoints()
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer();        
+            .AddJwtBearer();
 
         builder.Services
             .AddInfrastructure(builder.Configuration);
 
         builder.Services
-            .AddValidatorsFromAssemblyContaining<CreatePurchaseValidator>()
-            .RegisterHandlersFromAssemblyContaining(typeof(CreatePurchaseHandler));
+            .AddValidatorsFromAssemblyContaining<CreateTransactionValidator>()
+            .RegisterHandlersFromAssemblyContaining(typeof(CreateTransactionHandler));
 
         return builder;
     }

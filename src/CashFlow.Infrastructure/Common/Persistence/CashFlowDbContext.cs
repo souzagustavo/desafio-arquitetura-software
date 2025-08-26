@@ -1,5 +1,5 @@
 ﻿using CashFlow.Application.Common.Interfaces;
-using CashFlow.Domain.Store;
+using CashFlow.Domain.Account;
 using CashFlow.Domain.Transactions;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,8 +7,9 @@ namespace CashFlow.Infrastructure.Common.Persistence;
 
 public class CashFlowDbContext : DbContext, ICashFlowDbContext
 {
-    public DbSet<StoreEntity> Stores { get; set; }
+    public DbSet<AccountEntity> Accounts { get; set; }
     public DbSet<TransactionEntity> Transactions { get; set; }
+    public DbSet<AccountBalanceEntity> AccountBalances { get; set; }
 
     public CashFlowDbContext(DbContextOptions<CashFlowDbContext> options)
         : base(options)

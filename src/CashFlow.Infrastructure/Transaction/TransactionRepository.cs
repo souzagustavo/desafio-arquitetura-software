@@ -1,6 +1,4 @@
-﻿using CashFlow.Application.Common;
-using CashFlow.Application.Transactions.Handlers;
-using CashFlow.Domain.Transactions;
+﻿using CashFlow.Domain.Transactions;
 using CashFlow.Infrastructure.Common.Persistence;
 
 namespace CashFlow.Infrastructure.Transaction
@@ -9,7 +7,7 @@ namespace CashFlow.Infrastructure.Transaction
     {
         private readonly CashFlowDbContext _dbContext;
 
-        public TransactionRepository(CashFlowDbContext dbContext) 
+        public TransactionRepository(CashFlowDbContext dbContext)
         {
             _dbContext = dbContext;
         }
@@ -25,26 +23,26 @@ namespace CashFlow.Infrastructure.Transaction
             return await _dbContext.Transactions.FindAsync(id, cancellationToken);
         }
 
-        public async Task<PagedResult<TransactionEntity>> GetPagedAsync(
-            GetPagedTransactionsQuery filter,            
-            CancellationToken cancellationToken = default)
-        {
-            _dbContext.
+        //public async Task<PagedResult<TransactionEntity>> GetPagedAsync(
+        //    GetPagedTransactionsQuery filter,            
+        //    CancellationToken cancellationToken = default)
+        //{
+        //    _dbContext.
 
-                _cashFlowDbContext.Stores
-            .Include(s => s.Transactions)
-            .Where(s => s.IdentityUserId == userId)
-            .SelectMany(s => s.Transactions)
-            .FirstOrDefaultAsync(t => t.Id == id);
+        //        _cashFlowDbContext.Accounts
+        //    .Include(s => s.Transactions)
+        //    .Where(s => s.IdentityUserId == userId)
+        //    .SelectMany(s => s.Transactions)
+        //    .FirstOrDefaultAsync(t => t.Id == id);
 
-            return new PagedResult<TransactionEntity>
-            {
-                Items = items,
-                CurrentPage = filter.Page,
-                PageSize = filter.PageSize,
-                TotalItems = totalItems,
-                TotalPages = totalPages
-            };
-        }
+        //    return new PagedResult<TransactionEntity>
+        //    {
+        //        Items = items,
+        //        CurrentPage = filter.Page,
+        //        PageSize = filter.PageSize,
+        //        TotalItems = totalItems,
+        //        TotalPages = totalPages
+        //    };
+        //}
     }
 }

@@ -22,14 +22,14 @@ namespace CashFlow.Api.Endpoints.Transactions
         }
 
         private static async Task<IResult> GetPagedAsync(
-            [FromRoute] Guid storeId,
-            [FromQuery] GetPagedTransactionsQuery query,
+            [FromRoute] Guid accountId,
+            [AsParameters] GetPagedTransactionsQuery query,
             IGetPagedTransactionHandler handler,
             CancellationToken cancellationToken)
         {
             var userId = Guid.NewGuid();
 
-            var response = await handler.HandleAsync(userId: userId, storeId: storeId, query: query, cancellationToken);
+            var response = await handler.HandleAsync(userId: userId, accountId: accountId, query: query, cancellationToken);
 
             if (response.IsError)
                 return response.Errors.ToProblem();

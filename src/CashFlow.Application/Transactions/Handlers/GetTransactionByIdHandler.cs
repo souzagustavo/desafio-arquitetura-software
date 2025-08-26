@@ -30,7 +30,7 @@ public class GetTransactionByIdHandler : IGetTransactionByIdHandler
     public async Task<ErrorOr<GetTransactionResponse>> HandleAsync(Guid userId, Guid id,
         CancellationToken cancellationToken)
     {
-        var result = await _cashFlowDbContext.Stores
+        var result = await _cashFlowDbContext.Accounts
             .Include(s => s.Transactions)
             .Where(s => s.IdentityUserId == userId)
             .SelectMany(s => s.Transactions)

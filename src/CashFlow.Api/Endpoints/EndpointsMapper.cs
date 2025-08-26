@@ -1,7 +1,7 @@
-﻿using CashFlow.Api.Endpoints.Store;
+﻿using CashFlow.Api.Endpoints.Account;
 using CashFlow.Api.Endpoints.Transactions;
 
-namespace CashFlow.Store.Api.Endpoints;
+namespace CashFlow.Account.Api.Endpoints;
 public static class EndpointGroupMapper
 {
     public static void MapAllEndpoints(this WebApplication app)
@@ -9,11 +9,12 @@ public static class EndpointGroupMapper
         app.MapGroup("/me")
             .RequireAuthorization()
             .ProducesValidationProblem()
-            .MapGroup("/stores")
-                .MapCreateStoreEndpoint()
-                .MapGetStoreByIdEndpoint()
-            .MapGroup("/{storeId:guid}/transactions")
+            .MapGroup("/accounts")
+                .MapCreateAccountEndpoint()
+                .MapGetAccountByIdEndpoint()
+            .MapGroup("/{accountId:guid}/transactions")
                 .MapCreateTransactionEndpoint()
-                .MapGetTransactionByIdEndpoint();
+                .MapGetTransactionByIdEndpoint()
+                .MapGetPagedTransactionEndpoint();
     }
 }

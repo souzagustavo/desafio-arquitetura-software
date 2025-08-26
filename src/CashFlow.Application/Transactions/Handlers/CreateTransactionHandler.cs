@@ -15,7 +15,7 @@ public interface ICreateTransationHandler : IHandler
 {
     Task<ErrorOr<CreateTransactionResponse>> HandleAsync(
         Guid UserId,
-        Guid StoreId,
+        Guid AccountId,
         CreateTransactionRequest request,
         CancellationToken cancellationToken);
 }
@@ -30,20 +30,20 @@ public class CreateTransactionHandler : ICreateTransationHandler
     }
 
     public async Task<ErrorOr<CreateTransactionResponse>> HandleAsync(
-        Guid UserId, Guid StoreId,
+        Guid UserId, Guid AccountId,
         CreateTransactionRequest request,
         CancellationToken cancellationToken)
     {
-        var isValidStore =
-            await _dbContext.Stores.AnyAsync(s => s.Id == StoreId && s.IdentityUserId == UserId, cancellationToken);
+        var isValidAccount =
+            await _dbContext.Accounts.AnyAsync(s => s.Id == AccountId && s.IdentityUserId == UserId, cancellationToken);
 
-        if (!isValidStore)
-            return Error.NotFound(description: "Store not found.");
+        if (!isValidAccount)
+            return Error.NotFound(description: "Account not found.");
 
         var mapper = new TransactionMapper();
         var entity = mapper.ToTransactionEntity(request);
 
-        entity.StoreId = StoreId;
+        entity.AccountId = AccountId;
 
         await _dbContext.Transactions.AddAsync(entity, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);

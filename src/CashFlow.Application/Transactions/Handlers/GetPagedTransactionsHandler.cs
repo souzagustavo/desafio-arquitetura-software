@@ -17,7 +17,7 @@ public interface IGetPagedTransactionHandler : IHandler
 {
     Task<ErrorOr<PagedResult<GetTransactionResponse>>> HandleAsync(
          Guid userId,
-         Guid storeId,
+         Guid accountId,
          GetPagedTransactionsQuery query,
          CancellationToken cancellationToken);
 }
@@ -33,12 +33,12 @@ public class GetPagedTransactionsHandler : IGetPagedTransactionHandler
 
     public async Task<ErrorOr<PagedResult<GetTransactionResponse>>> HandleAsync(
         Guid userId,
-        Guid storeId,
+        Guid accountId,
         GetPagedTransactionsQuery request,
         CancellationToken cancellationToken)
     {
-        var queryble = _cashFlowDbContext.Stores
-            .Where(s => s.Id == storeId && s.IdentityUserId == userId)
+        var queryble = _cashFlowDbContext.Accounts
+            .Where(s => s.Id == accountId && s.IdentityUserId == userId)
             .Include(s => s.Transactions)
             .SelectMany(s => s.Transactions);
 

@@ -2,7 +2,7 @@
 {
     public enum ETransactionType
     {
-        Purchase = 1,
-        Sale = 2
+        InFlow = 1,
+        OutFlow = 2
     }
 }
