@@ -1,27 +1,14 @@
-﻿
-namespace CashFlow.Account.Api.Endpoints
+﻿namespace CashFlow.Api.Endpoints;
+
+public class RequireUserIdFilter : IEndpointFilter
 {
-    public class CurrentUserEndpointFilter : IEndpointFilter
+    public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
     {
-        public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
-        {
-            // Access the HttpContext to retrieve the token or claims
-            var httpContext = context.HttpContext;
-            var user = httpContext.User;
+        var user = context.HttpContext.User;
 
-            if (user.Identity?.IsAuthenticated == true)
-            {
-                // Example: Check for a specific custom claim
-                var customClaim = user.FindFirst("custom_data");
-                if (customClaim == null)
-                {
-                    // Handle missing custom claim, e.g., return Unauthorized
-                    return Results.Unauthorized();
-                }
-            }
+        if (user.GetUserIdAsNullableGuid() is null)
+            return Results.StatusCode(StatusCodes.Status403Forbidden);
 
-            // Continue to the next filter or the endpoint handler
-            return await next(context);
-        }
+        return await next(context);
     }
 }

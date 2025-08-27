@@ -2,7 +2,7 @@
 {
     public enum ETransactionType
     {
-        InFlow = 1,
-        OutFlow = 2
+        Incoming = 1,
+        Outgoing = 2
     }
 }

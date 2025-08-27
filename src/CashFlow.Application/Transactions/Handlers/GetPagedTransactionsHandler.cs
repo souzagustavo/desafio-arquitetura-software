@@ -3,6 +3,7 @@ using CashFlow.Application.Common.Handlers;
 using CashFlow.Application.Common.Interfaces;
 using CashFlow.Domain.Transactions;
 using ErrorOr;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
 namespace CashFlow.Application.Transactions.Handlers;
@@ -34,7 +35,7 @@ public class GetPagedTransactionsHandler : IGetPagedTransactionHandler
     public async Task<ErrorOr<PagedResult<GetTransactionResponse>>> HandleAsync(
         Guid userId,
         Guid accountId,
-        GetPagedTransactionsQuery request,
+        GetPagedTransactionsQuery query,
         CancellationToken cancellationToken)
     {
         var queryble = _cashFlowDbContext.Accounts
@@ -42,30 +43,30 @@ public class GetPagedTransactionsHandler : IGetPagedTransactionHandler
             .Include(s => s.Transactions)
             .SelectMany(s => s.Transactions);
 
-        if (request.Type.HasValue)
-            queryble = queryble.Where(t => t.Type == request.Type.Value);
+        if (query.Type.HasValue)
+            queryble = queryble.Where(t => t.Type == query.Type.Value);
 
-        if (request.PaymentMethod.HasValue)
-            queryble = queryble.Where(t => t.PaymentMethod == request.PaymentMethod.Value);
+        if (query.PaymentMethod.HasValue)
+            queryble = queryble.Where(t => t.PaymentMethod == query.PaymentMethod.Value);
 
         var total = queryble.Count();
 
         queryble = queryble
-            .Skip((request.Page - 1) * request.PageSize)
-            .Take(request.PageSize);            
+            .Skip((query.Page - 1) * query.PageSize)
+            .Take(query.PageSize);            
 
         var results = await queryble.ToListAsync(cancellationToken);
 
         var mapper = new TransactionMapper();
         var items = results
-            .Select(t => mapper.ToTransactionResponse(t))
+            .Select(t => mapper.ToResponse(t))
             .ToList();
 
         return new PagedResult<GetTransactionResponse>
         {
             Items = items,
-            CurrentPage = request.Page,
-            PageSize = request.PageSize,
+            CurrentPage = query.Page,
+            PageSize = query.PageSize,
             TotalItems = total
         };
     }

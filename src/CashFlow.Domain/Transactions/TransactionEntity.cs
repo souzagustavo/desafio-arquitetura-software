@@ -13,7 +13,20 @@ namespace CashFlow.Domain.Transactions
         public EPaymentMethod PaymentMethod { get; set; }
         public decimal TotalAmount { get; set; } = 0;
         public string? Notes { get; set; }
+        public decimal? BalanceProcessed { get; set; }
 
         public virtual AccountEntity Account { get; set; } = null!;
+
+        public void MarkAsProcessed(decimal balanceAfterProcessing)
+        {
+            Status = ETransactionStatus.Processed;
+            ProcessedAt = DateTime.UtcNow;
+            BalanceProcessed = balanceAfterProcessing;
+        }
+        public void MarkAsFailed()
+        {
+            Status = ETransactionStatus.Failed;
+            ProcessedAt = DateTime.UtcNow;
+        }
     }
 }

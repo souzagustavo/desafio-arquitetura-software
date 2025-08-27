@@ -1,7 +1,14 @@
-﻿namespace CashFlow.Domain.Transactions
+﻿using CashFlow.Domain.Common;
+
+namespace CashFlow.Domain.Transactions
 {
-    public class TransactionCreated
+    public class TransactionCreated : BaseEvent
     {
-        public DateTime Time { get; set; }
+        public Guid Id { get; set; }
+        public Guid AccountId { get; set; }
+        public ETransactionType Type { get; set; }
+        public EPaymentMethod PaymentMethod { get; set; }
+        public decimal TotalAmount { get; set; }
+        public string? Notes { get; set; }
     }
 }

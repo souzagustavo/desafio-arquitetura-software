@@ -7,8 +7,10 @@ namespace CashFlow.Application.Transactions
     [Mapper]
     public partial class TransactionMapper
     {
-        public partial TransactionEntity ToTransactionEntity(CreateTransactionRequest transactionRequest);
+        public partial TransactionEntity ToEntity(CreateTransactionRequest transactionRequest);
 
-        public partial GetTransactionResponse ToTransactionResponse(TransactionEntity transactionEntity);
+        public partial GetTransactionResponse ToResponse(TransactionEntity transactionEntity);
+
+        public partial TransactionCreated ToEvent(TransactionEntity transactionEntity);
     }
 }

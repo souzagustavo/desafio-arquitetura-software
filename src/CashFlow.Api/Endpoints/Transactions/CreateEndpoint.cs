@@ -1,6 +1,7 @@
 ﻿using CashFlow.Application.Transactions.Handlers;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace CashFlow.Api.Endpoints.Transactions;
 public static class CreateEndpoint
@@ -26,10 +27,11 @@ public static class CreateEndpoint
         [FromRoute] Guid accountId,
         [FromBody] CreateTransactionRequest request,
         IValidator<CreateTransactionRequest> validator,
+        ClaimsPrincipal claims,
         ICreateTransationHandler handler,
         CancellationToken cancellationToken)
     {
-        var userId = Guid.NewGuid();
+        var userId = claims.GetUserIdAsValidatedGuid();
 
         var validationResult = await validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)

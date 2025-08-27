@@ -4,7 +4,7 @@ using ErrorOr;
 
 namespace CashFlow.Application.Account.Handlers
 {
-    public record CreateAccountRequest(string Name);
+    public record CreateAccountRequest(string Name, decimal InitialBalance = 0);
 
     public record CreatedAccountResponse(Guid Id);
 
@@ -33,7 +33,11 @@ namespace CashFlow.Application.Account.Handlers
             entity.IdentityUserId = userId;
 
             await _dbContext.Accounts.AddAsync(entity, cancellationToken);
-            await _dbContext.AccountBalances.AddAsync(new() { Account = entity }, cancellationToken);
+            await _dbContext.AccountBalances
+                .AddAsync(new() {
+                    Account = entity,
+                    CurrentTotal = request.InitialBalance
+                }, cancellationToken);
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 

@@ -1,12 +1,13 @@
 ﻿using CashFlow.Application.Common;
 using CashFlow.Application.Transactions.Handlers;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace CashFlow.Api.Endpoints.Transactions
 {
     public static class GetPagedEndpoint
     {
-        public static IEndpointRouteBuilder MapGetPagedTransactionEndpoint(this IEndpointRouteBuilder app)
+        public static IEndpointRouteBuilder MapGetPagedTransactionsEndpoint(this IEndpointRouteBuilder app)
         {
             app.MapGet("/", GetPagedAsync)
                 .WithTags("Transactions")
@@ -25,9 +26,10 @@ namespace CashFlow.Api.Endpoints.Transactions
             [FromRoute] Guid accountId,
             [AsParameters] GetPagedTransactionsQuery query,
             IGetPagedTransactionHandler handler,
+            ClaimsPrincipal claims,
             CancellationToken cancellationToken)
         {
-            var userId = Guid.NewGuid();
+            var userId = claims.GetUserIdAsValidatedGuid();
 
             var response = await handler.HandleAsync(userId: userId, accountId: accountId, query: query, cancellationToken);
 

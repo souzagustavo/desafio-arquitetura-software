@@ -1,5 +1,6 @@
 ﻿using CashFlow.Application.Transactions.Handlers;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace CashFlow.Api.Endpoints.Transactions;
 
@@ -24,9 +25,10 @@ public static class GetByIdEndpoint
     private static async Task<IResult> GetByIdAsync(
         [FromRoute] Guid id,
         IGetTransactionByIdHandler handler,
+        ClaimsPrincipal claims,
         CancellationToken cancellationToken)
     {
-        var userId = Guid.NewGuid();
+        var userId = claims.GetUserIdAsValidatedGuid();
 
         var response = await handler.HandleAsync(userId, id, cancellationToken);
 

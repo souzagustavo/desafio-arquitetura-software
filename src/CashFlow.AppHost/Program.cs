@@ -7,8 +7,10 @@ var postgres = builder.AddPostgres("Postgres", userName: username, password: pas
 
 var redis = builder.AddRedis("Redis", port: 6379, password: password);
 
-var cashFlowDb = postgres.AddDatabase("CashFlowDb", databaseName: "cash-flow");
+var rabbitmq = builder.AddRabbitMQ("RabbitMq", userName: username, password: password, port: 5672)
+    .WithManagementPlugin(15672); ;
 
+var cashFlowDb = postgres.AddDatabase("CashFlowDb", databaseName: "cash-flow");
 var identityServerDb = postgres.AddDatabase("IdentityServerDb", databaseName: "identity-server");
 
 var identityserver = builder.AddProject<Projects.CashFlow_IdentifyServer_Api>("cash-flow-identifyserver-api")
@@ -19,7 +21,9 @@ builder.AddProject<Projects.CashFlow_Api>("cash-flow-api")
     .WithReference(cashFlowDb)
     .WaitFor(cashFlowDb)
     .WithReference(redis)
-    .WaitFor(redis);
+    .WaitFor(redis)
+    .WithReference(rabbitmq)
+    .WaitFor(rabbitmq);
 
 builder.AddProject<Projects.CashFlow_Consumer_Worker>("cash-flow-consumer-worker")
     .WithReference(cashFlowDb)

@@ -1,7 +1,7 @@
 ﻿using CashFlow.Application.Transactions.Handlers;
 using CashFlow.Infrastructure;
+using CashFlow.Infrastructure.Common.PubSub;
 using FluentValidation;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
 using System.Text.Json.Serialization;
 
@@ -13,8 +13,8 @@ public static class HostingExtensions
     {
         builder.Services
             .ConfigureEndpoints()
-            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer();
+            .AddAuthorization()
+            .AddAuthentication("Bearer").AddJwtBearer();
 
         builder.Services
             .AddInfrastructure(builder.Configuration);
@@ -22,6 +22,8 @@ public static class HostingExtensions
         builder.Services
             .AddValidatorsFromAssemblyContaining<CreateTransactionValidator>()
             .RegisterHandlersFromAssemblyContaining(typeof(CreateTransactionHandler));
+
+        builder.Services.AddMassTransitWithRabbitMq();
 
         return builder;
     }

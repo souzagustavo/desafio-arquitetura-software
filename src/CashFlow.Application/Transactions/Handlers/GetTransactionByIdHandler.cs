@@ -40,7 +40,7 @@ public class GetTransactionByIdHandler : IGetTransactionByIdHandler
             return Error.NotFound(description: "Transaction not found.");
 
         var mapper = new TransactionMapper();
-        var response = mapper.ToTransactionResponse(result);
+        var response = mapper.ToResponse(result);
 
         return response;
     }
