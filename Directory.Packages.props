@@ -13,8 +13,8 @@
     <PackageVersion Include="Aspire.StackExchange.Redis" Version="9.4.1" />
     <PackageVersion Include="Aspire.StackExchange.Redis.DistributedCaching" Version="9.4.1" />
     <!-- Service Defaults -->
-    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="9.4.0" />
-    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="9.3.1" />
+    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="9.8.0" />
+    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="9.4.1" />
     <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.12.0" />
     <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.12.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.12.0" />
@@ -34,11 +34,11 @@
     <PackageVersion Include="Microsoft.Extensions.Identity.Stores" Version="9.0.8" />
     <PackageVersion Include="RedLock.net" Version="2.3.2" />
     <PackageVersion Include="Riok.Mapperly" Version="4.2.1" />
-    <PackageVersion Include="Swashbuckle.AspNetCore" Version="9.0.3" />
+    <PackageVersion Include="Swashbuckle.AspNetCore" Version="9.0.4" />
     <PackageVersion Include="ErrorOr" Version="2.0.1" />
     <PackageVersion Include="Microsoft.Extensions.Caching.Hybrid" Version="9.8.0" />
     <!-- Masstransit -->
-    <PackageVersion Include="MassTransit.Abstractions" Version="8.3.2" />
-    <PackageVersion Include="MassTransit.RabbitMQ" Version="8.3.2" />
+    <PackageVersion Include="MassTransit.Abstractions" Version="8.5.2" />
+    <PackageVersion Include="MassTransit.RabbitMQ" Version="8.5.2" />
   </ItemGroup>
 </Project>
