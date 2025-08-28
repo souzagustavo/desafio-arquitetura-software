@@ -1,6 +1,7 @@
 ﻿using CashFlow.Application.Account;
 using CashFlow.Application.Common.Interfaces;
 using CashFlow.Application.Transactions;
+using CashFlow.Domain.Account;
 using CashFlow.Domain.Transactions;
 using CashFlow.Infrastructure.Common.Cache;
 using Microsoft.EntityFrameworkCore;
@@ -19,18 +20,21 @@ namespace CashFlow.Infrastructure.Transaction
         private readonly IDistributedLockFactory _lockFactory;
         private readonly ICashFlowDbContext _cashFlowDbContext;
         private readonly IAccountCachedRepository _accountCachedRepository;
+        private readonly IAccountService _accountService;
 
         public TransactionLockProcessor(
             IDistributedLockFactory distributedLockFactory,
             ICashFlowDbContext cashFlowDbContext,
             IAccountCachedRepository accountCachedRepository,
-            IOptions<RedLockRootOptions> options)
+            IOptions<RedLockRootOptions> options,
+            IAccountService accountService)
         {
             _lockFactory = distributedLockFactory;
             _cashFlowDbContext = cashFlowDbContext;
 
             _redLockOptions = options.Value.GetOptions(LockKeyOptions);
             _accountCachedRepository = accountCachedRepository;
+            _accountService = accountService;
         }
 
         public async Task DoAsync(Guid accountId, Guid transactionId, CancellationToken cancellationToken)
@@ -63,6 +67,9 @@ namespace CashFlow.Infrastructure.Transaction
                 var accountDailyBalance =
                     await _accountCachedRepository
                         .GetOrCreateDailyBalanceAsync(accountId, transaction.GetDateCreated());
+
+                _accountService
+                    .UpdateBalancesByTransaction(account.Balance, accountDailyBalance, transaction, cancellationToken);
 
                 await _accountCachedRepository
                     .UpdateBalancesAndTransacionAsync(account.Balance, accountDailyBalance, transaction, cancellationToken);

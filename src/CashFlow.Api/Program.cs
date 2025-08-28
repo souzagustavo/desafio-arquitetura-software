@@ -1,5 +1,5 @@
-using CashFlow.Account.Api.Endpoints;
 using CashFlow.Api;
+using CashFlow.Api.Endpoints;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);

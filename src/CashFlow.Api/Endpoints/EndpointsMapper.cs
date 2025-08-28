@@ -1,9 +1,9 @@
-﻿using CashFlow.Api.Endpoints;
-using CashFlow.Api.Endpoints.Accounts;
+﻿using CashFlow.Api.Endpoints.Accounts;
 using CashFlow.Api.Endpoints.Accounts.Balance;
+using CashFlow.Api.Endpoints.Accounts.DailyBalance;
 using CashFlow.Api.Endpoints.Accounts.Transactions;
 
-namespace CashFlow.Account.Api.Endpoints;
+namespace CashFlow.Api.Endpoints;
 public static class EndpointGroupMapper
 {
     public static void MapAllEndpoints(this WebApplication app)
@@ -20,15 +20,16 @@ public static class EndpointGroupMapper
                 .MapGetAccountByIdEndpoint()
                 .MapGetPagedAccountsEndpoint();
 
-        var balance =
-            accounts.MapGroup("/{accountId:guid}/balance")
+            accounts.MapGroup("/{accountId:guid}/balances")
                 .MapGetBalanceByAccountIdEndpoint();
-
-        var transactions =
+        
             accounts.MapGroup("/{accountId:guid}/transactions")
                 .MapCreateTransactionEndpoint()
                 .MapGetTransactionByIdEndpoint()
-                .MapGetPagedTransactionsEndpoint()
+                .MapGetPagedTransactionsEndpoint();
+
+            accounts.MapGroup("/{accountId:guid}/daily-balances/")
+                .MapGetDailyBalanceByDateEndpoint()
             ;
     }
 }

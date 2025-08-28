@@ -8,7 +8,7 @@ namespace CashFlow.Infrastructure.Account
     {
         public void Configure(EntityTypeBuilder<AccountDailyBalanceEntity> builder)
         {
-            builder.ToTable("DailyBalance");
+            builder.ToTable("AccountDailyBalance");
         }
     }
 }

@@ -11,7 +11,7 @@ namespace CashFlow.Application.AccountDailyBalance.Handlers
                     .WithMessage("Date must be a valid date.");
 
            RuleFor(x => x.Date)
-                .GreaterThan(DateOnly.FromDateTime(DateTime.UtcNow).AddDays(1))
+                .LessThanOrEqualTo(DateOnly.FromDateTime(DateTime.UtcNow))
                     .WithMessage("Date cannot be in the future.");
         }
     }

@@ -1,34 +1,24 @@
 ﻿using CashFlow.Application.Account;
 using CashFlow.Application.Account.Handlers;
 using CashFlow.Application.AccountBalance.Handlers;
+using CashFlow.Application.AccountDailyBalance.Handlers;
 using CashFlow.Application.Common.Interfaces;
 using CashFlow.Domain.Account;
 using CashFlow.Domain.Transactions;
+using CashFlow.Infrastructure.Common.Cache;
 using MassTransit.Initializers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Hybrid;
-using System.Text.Json;
 
 namespace CashFlow.Infrastructure.Account;
 
-public class AccountCachedRepository : IAccountCachedRepository
+public class AccountCachedRepository : CacheRepositoryBase, IAccountCachedRepository
 {
-    private const string AccountsCacheKeyFormat = "accounts-userId:{0}";
-    private const string AccountBalanceCacheKeyFormat = "balance-accountId:{0}";
-    private const string AccountDailyBalanceCacheKeyFormat = "daily-balance:{0}:accountId:{1}";
-
-    private const int DefaultCacheDurationInMinutes = 30;
-    private const int DefaultLocalCacheDurationInSeconds = 15;
-
-    private readonly HybridCache _hybridCache;
-    private readonly ICashFlowDbContext _cashFlowDbContext;
-
     private readonly AccountMapper _accountMapper = new();
 
     public AccountCachedRepository(HybridCache hybridCache, ICashFlowDbContext cashFlowDbContext)
+        : base(cashFlowDbContext, hybridCache)
     {
-        _hybridCache = hybridCache;
-        _cashFlowDbContext = cashFlowDbContext;
     }
 
     public async Task CreateAccountAsync(AccountEntity accountEntity, CancellationToken cancellationToken)
@@ -47,11 +37,11 @@ public class AccountCachedRepository : IAccountCachedRepository
                 .Where(a => a.IdentityUserId == accountEntity.IdentityUserId)
                 .ToListAsync(cancellationToken))
                 .Select(x => _accountMapper.ToGetAccountResponse(x));
-        var userAccountsKey = string.Format(AccountsCacheKeyFormat, accountEntity.IdentityUserId);
+        var userAccountsKey = AccountCacheKeys.AccountsByUserKey(accountEntity.IdentityUserId);
         await SetToCacheAsync(userAccountsKey, accounts, cancellationToken);
 
         var accountBalanceResponse = _accountMapper.ToGetAccountBalanceResponse(accountBalanceEntity);
-        var balanceAccountKey = string.Format(AccountBalanceCacheKeyFormat, accountEntity.Id);
+        var balanceAccountKey = AccountCacheKeys.AccountBalanceKey(accountBalanceEntity.Id);
         await SetToCacheAsync(balanceAccountKey, accountBalanceResponse, cancellationToken);
     }
 
@@ -63,18 +53,19 @@ public class AccountCachedRepository : IAccountCachedRepository
         _cashFlowDbContext.Transactions.Update(transaction);
         await _cashFlowDbContext.SaveChangesAsync(cancellationToken);
 
-        var balanceKey = string.Format(AccountBalanceCacheKeyFormat, balance.AccountId);
+        var balanceKey = AccountCacheKeys.AccountBalanceKey(balance.AccountId);
+
         var accountBalanceResponse = _accountMapper.ToGetAccountBalanceResponse(balance);
         await SetToCacheAsync(balanceKey, accountBalanceResponse, cancellationToken);
 
-        var dailyBalanceKey = string.Format(AccountDailyBalanceCacheKeyFormat, dailyBalance.DateToString(), dailyBalance.AccountId);
+        var dailyBalanceKey = AccountCacheKeys.DailyBalanceByAccount(dailyBalance.Date, dailyBalance.AccountId);
         var dailyBalanceResponse = _accountMapper.ToGetDailyBalanceResponse(dailyBalance);
         await SetToCacheAsync(dailyBalanceKey, dailyBalanceResponse, cancellationToken);
     }
 
     public async Task<GetAccountBalanceResponse?> GetBalanceAsync(Guid accountId, CancellationToken cancellationToken)
     {
-        var key = string.Format(AccountBalanceCacheKeyFormat, accountId);
+        var key = AccountCacheKeys.AccountBalanceKey(accountId);
 
         return await _hybridCache.GetOrCreateAsync(key, async token =>
         {
@@ -98,7 +89,7 @@ public class AccountCachedRepository : IAccountCachedRepository
 
     public async Task<IEnumerable<GetAccountResponse>> GetAllByUserIdAsync(Guid userId, CancellationToken cancellationToken)
     {
-        var key = string.Format(AccountsCacheKeyFormat, userId);
+        var key = AccountCacheKeys.AccountsByUserKey(userId);
 
         return await _hybridCache.GetOrCreateAsync(key, async token =>
         {
@@ -121,30 +112,43 @@ public class AccountCachedRepository : IAccountCachedRepository
     public async Task<AccountDailyBalanceEntity> GetOrCreateDailyBalanceAsync(Guid accountId, DateOnly date)
     {
         var dailyBalance =
-            await _cashFlowDbContext.AccountDailyBalance.FirstOrDefaultAsync(x => x.Id == accountId && x.Date == date);
+            await _cashFlowDbContext.AccountDailyBalance.FirstOrDefaultAsync(x => x.AccountId == accountId && x.Date == date);
 
-        dailyBalance ??= new AccountDailyBalanceEntity()
+        if (dailyBalance is null)
+        {
+            dailyBalance = new AccountDailyBalanceEntity()
             {
                 AccountId = accountId,
                 Date = date
             };
 
-        await _cashFlowDbContext.AccountDailyBalance.AddAsync(dailyBalance);
+            await _cashFlowDbContext.AccountDailyBalance.AddAsync(dailyBalance);
+            await _cashFlowDbContext.SaveChangesAsync();
+        }
 
         return dailyBalance;
     }
 
-    private static HybridCacheEntryOptions GetDefaultCacheOptions()
-        => new()
+    public async Task<GetAccountDailyBalanceResponse?> GetDailyBalanceAsync(Guid accountId, DateOnly date,
+        CancellationToken cancellationToken)
+    {
+        var dailyBalanceKey = AccountCacheKeys.DailyBalanceByAccount(date, accountId);
+
+        return await _hybridCache.GetOrCreateAsync(dailyBalanceKey, async token =>
+        {
+            var accountBalanceEntity =
+                await GetOrCreateDailyBalanceAsync(accountId, date);
+
+            if (accountBalanceEntity is null)
+                return null;
+
+            return _accountMapper.ToGetDailyBalanceResponse(accountBalanceEntity);
+        },
+        new HybridCacheEntryOptions
         {
             Expiration = TimeSpan.FromMinutes(DefaultCacheDurationInMinutes),
             LocalCacheExpiration = TimeSpan.FromSeconds(DefaultLocalCacheDurationInSeconds)
-        };
-
-    private async Task SetToCacheAsync<T>(string key, T @object, CancellationToken cancellationToken)
-    {
-        var json = JsonSerializer.Serialize(@object);
-        await _hybridCache.SetAsync(key, json, options: GetDefaultCacheOptions(), tags: null, cancellationToken);
+        },
+        cancellationToken: cancellationToken);
     }
-
 }

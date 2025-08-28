@@ -1,9 +1,29 @@
-@CashFlow.Api_HostAddress = http://localhost:5062
-
-POST {{CashFlow.Api_HostAddress}}/me/transactions/
+@CashFlow.Api_HostAddress = https://localhost:7114
+###
+@CashFlowToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6ImVmZmQ4ZGZjLWIxYTMtNGM0Mi1iMmVlLWE4MjdmMDA0MzE0MiIsInN1YiI6ImVmZmQ4ZGZjLWIxYTMtNGM0Mi1iMmVlLWE4MjdmMDA0MzE0MiIsImp0aSI6ImVhMWUyMCIsImF1ZCI6WyJodHRwOi8vbG9jYWxob3N0OjI3NTExIiwiaHR0cHM6Ly9sb2NhbGhvc3Q6NDQzNjYiLCJodHRwczovL2xvY2FsaG9zdDo3MTE0IiwiaHR0cDovL2xvY2FsaG9zdDo1MDYyIl0sIm5iZiI6MTc1NjM0NTkxNCwiZXhwIjoxNzY0Mjk0NzE0LCJpYXQiOjE3NTYzNDU5MTUsImlzcyI6ImRvdG5ldC11c2VyLWp3dHMifQ.y8r3OZTwsmMzyVU1SjmTPSIl26HQ0qWp4PeIy0D_SKQ"
+###
+## Cria conta
+POST {{@CashFlow.Api_HostAddress}}/me/accounts @account
+Authorization: Bearer {{CashFlowToken}}
 Content-Type: application/json
 {
-  
+  "name" : "minha conta 1"
 }
 
-###
+### Pega saldo
+GET {{CashFlow.Api_HostAddress}}/me/account/{{account.Id}}/balance
+Authorization: {{CashFlowToken}}
+
+### Envia transa��o
+POST {{CashFlow.Api_HostAddress}}/me/account/{{account.Id}}/transaction
+Authorization: {{CashFlowToken}}
+{
+    "Type" : "",
+    "PaymentMethod" : "Cash",
+    "TotalAmount" : 1000
+}
+
+
+### Pega saldo
+GET {{CashFlow.Api_HostAddress}}/me/account/{{account.Id}}/transaction?PageSize=10&Page=1
+Authorization: {{CashFlowToken}}

@@ -12,8 +12,7 @@ public record GetAccountDailyBalanceResponse(Guid Id, DateOnly Date,
 public interface IGetDailyBalanceByDateHandler : IHandler
 {
     Task<ErrorOr<GetAccountDailyBalanceResponse>> HandleAsync(
-        Guid userId,
-        DateOnly date,
+        GetAccountDailyBalanceQuery query,
         CancellationToken cancellationToken);
 }
 
@@ -27,16 +26,17 @@ public class GetDailyBalanceByDateHandler : IGetDailyBalanceByDateHandler
     }
 
     public async Task<ErrorOr<GetAccountDailyBalanceResponse>> HandleAsync(
-        Guid userId,
-        DateOnly date,
+        GetAccountDailyBalanceQuery query,
         CancellationToken cancellationToken)
     {
-        //var result = await
-        //    _dailyBalanceCachedQueries.GetByDateAsync(userId, date, cancellationToken);
+        var accounts = await _accountCachedRepository.GetAllByUserIdAsync(query.UserId, cancellationToken);
+        if (!accounts.Any(a => a.Id == query.AccountId))
+            return Error.Unauthorized();
 
-        //var mapper = new DailyBalanceMapper();
-        //return mapper.ToResponse(result);
+        var result = await _accountCachedRepository.GetDailyBalanceAsync(query.AccountId, query.Date, cancellationToken);
+        if (result is null)
+            return Error.Unexpected(description: "Try again later.");
 
-        throw new NotImplementedException();
+        return result;
     }
 }

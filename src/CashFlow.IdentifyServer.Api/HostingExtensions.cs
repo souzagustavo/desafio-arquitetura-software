@@ -1,7 +1,6 @@
 ﻿using CashFlow.IdentifyServer.Api.Database;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -9,13 +8,14 @@ namespace CashFlow.IdentifyServer.Api;
 
 public static class HostingExtensions
 {
+    public static byte[] IssuerSecurityKey { get => Encoding.UTF8.GetBytes("Wn8dKp3rL9mQz7tVx2uB5cY4eG1hJ6kP"); }
+    public static string ValidIssuer = "cashflow-identity-server";
+    public static string ValidAudience = "cashflow-api";
+
     public static WebApplicationBuilder ConfigureServices(this WebApplicationBuilder builder)
     {
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
-
-        var cs = builder.Configuration.GetConnectionString("IdentityServerDb");
-        builder.Services.AddDbContext<IdentityServerDbContext>(options => options.UseNpgsql(cs));
 
         builder.Services.AddDatabase(builder.Configuration);
 
@@ -24,26 +24,23 @@ public static class HostingExtensions
             {
                 options.User.RequireUniqueEmail = true;
             })
-            .AddEntityFrameworkStores<IdentityServerDbContext>()
-            .AddApiEndpoints();
+            .AddEntityFrameworkStores<IdentityServerDbContext>();
 
-        builder.Services
-            .AddAuthentication()
-            .AddJwtBearer(options =>
+        builder.Services.AddAuthentication(x =>
+        {
+            x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(x =>
+        {
+            x.TokenValidationParameters = new TokenValidationParameters
             {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = "your_issuer",
-                    ValidAudience = "your_audience",
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("your_secret_key"))
-                };
-            });
-
-        builder.Services.AddAuthorization();
+                ValidateLifetime = true,
+                
+                ValidateIssuerSigningKey = true,                
+                IssuerSigningKey = new SymmetricSecurityKey(IssuerSecurityKey)
+            };
+        });
 
         return builder;
     }

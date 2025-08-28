@@ -12,6 +12,8 @@ public static class HostingExtensions
 {
     public static WebApplicationBuilder ConfigureServices(this WebApplicationBuilder builder)
     {
+        builder.AddServiceDefaults();
+
         builder.Services
             .ConfigureEndpoints()
             .AddAuthorization()
@@ -29,7 +31,7 @@ public static class HostingExtensions
         {
             configure.UsingRabbitMq((context, cfg) =>
             {
-                cfg.AddRabbitMqHost(context);                
+                cfg.AddRabbitMqHost(context);
             });
         });
 
