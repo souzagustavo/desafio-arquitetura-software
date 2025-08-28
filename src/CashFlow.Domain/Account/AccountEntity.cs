@@ -8,7 +8,9 @@ namespace CashFlow.Domain.Account
         public Guid IdentityUserId { get; set; }
         public Guid AccountBalanceId { get; set; }
         public required string Name { get; set; }
+        
         public virtual AccountBalanceEntity Balance { get; set; } = null!;
+        public virtual ICollection<AccountDailyBalanceEntity> DailyBalances { get; set; } = null!;
         public virtual ICollection<TransactionEntity> Transactions { get; set; } = [];
     }
 }

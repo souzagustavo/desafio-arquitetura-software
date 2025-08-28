@@ -1,5 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <Folder Include="Balance\" />
     <Folder Include="Migrations\" />
   </ItemGroup>
   <ItemGroup>

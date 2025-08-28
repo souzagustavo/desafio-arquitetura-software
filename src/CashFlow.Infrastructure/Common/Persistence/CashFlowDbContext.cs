@@ -8,8 +8,9 @@ namespace CashFlow.Infrastructure.Common.Persistence;
 public class CashFlowDbContext : DbContext, ICashFlowDbContext
 {
     public DbSet<AccountEntity> Accounts { get; set; }
-    public DbSet<TransactionEntity> Transactions { get; set; }
     public DbSet<AccountBalanceEntity> AccountBalances { get; set; }
+    public DbSet<AccountDailyBalanceEntity> AccountDailyBalance { get; set; }
+    public DbSet<TransactionEntity> Transactions { get; set; }
 
     public CashFlowDbContext(DbContextOptions<CashFlowDbContext> options)
         : base(options)
@@ -25,3 +26,4 @@ public class CashFlowDbContext : DbContext, ICashFlowDbContext
         modelBuilder.UseStringEnums();
     }
 }
+

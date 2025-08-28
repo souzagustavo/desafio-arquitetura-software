@@ -1,6 +1,7 @@
-﻿using CashFlow.Application.Common.Interfaces;
+﻿using CashFlow.Application.Account;
+using CashFlow.Application.Common.Interfaces;
 using CashFlow.Application.Transactions;
-using CashFlow.Domain.Account;
+using CashFlow.Domain.Transactions;
 using CashFlow.Infrastructure.Common.Cache;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -10,62 +11,66 @@ namespace CashFlow.Infrastructure.Transaction
 {
     public class TransactionLockProcessor : ITransactionLockProcessor
     {
-        private const string LockKeyFormat = "lock-transaction-accountId-{1}";
-        private const string LockOptionsKey = "TransactionAccount";
+        private const string LockKeyFormat = "transaction-account-lock:{0}";
+        private const string LockKeyOptions = nameof(TransactionLockProcessor);
 
         private readonly RedLockOptions _redLockOptions;
 
         private readonly IDistributedLockFactory _lockFactory;
         private readonly ICashFlowDbContext _cashFlowDbContext;
+        private readonly IAccountCachedRepository _accountCachedRepository;
 
-        private readonly IAccountBalanceService _accountBalanceService;
-
-        public TransactionLockProcessor(IDistributedLockFactory distributedLockFactory,
+        public TransactionLockProcessor(
+            IDistributedLockFactory distributedLockFactory,
             ICashFlowDbContext cashFlowDbContext,
-            IAccountBalanceService accountBalanceService,
+            IAccountCachedRepository accountCachedRepository,
             IOptions<RedLockRootOptions> options)
         {
             _lockFactory = distributedLockFactory;
             _cashFlowDbContext = cashFlowDbContext;
-            _accountBalanceService = accountBalanceService;
 
-            _redLockOptions = options.Value.GetOptions(LockOptionsKey);
+            _redLockOptions = options.Value.GetOptions(LockKeyOptions);
+            _accountCachedRepository = accountCachedRepository;
         }
 
-        public async Task DoAsync(Guid transactionId, CancellationToken cancellationToken)
+        public async Task DoAsync(Guid accountId, Guid transactionId, CancellationToken cancellationToken)
         {
-            var transaction =
-                await _cashFlowDbContext.Transactions.FirstOrDefaultAsync(t => t.Id == transactionId, cancellationToken)
-                    ?? throw new InvalidOperationException($"Transaction with id {transactionId} not found.");
-
-            var accountId = transaction.AccountId;
-
             await using var _lock =
-                await _lockFactory.CreateLockAsync(GetLockKey(transaction.AccountId),
+                await _lockFactory.CreateLockAsync(GetLockKey(accountId),
                     expiryTime: TimeSpan.FromSeconds(_redLockOptions.ExpiryTimeSeconds),
                     waitTime: TimeSpan.FromSeconds(_redLockOptions.WaitTimeSeconds),
                     retryTime: TimeSpan.FromSeconds(_redLockOptions.RetryTimeSeconds));
 
             if (_lock.IsAcquired)
             {
-                var accountBalance =
-                    await _cashFlowDbContext.AccountBalances.FirstOrDefaultAsync(ab => ab.AccountId == accountId, cancellationToken)
-                        ?? throw new InvalidOperationException($"Account balance for account id {accountId} not found.");
+                var transaction =
+                    await _cashFlowDbContext
+                        .Transactions
+                        .FirstOrDefaultAsync(t => t.Id == transactionId, cancellationToken)
+                    ?? throw new InvalidOperationException($"Transaction with id {transactionId} not found.");
 
-                var isUpdated = _accountBalanceService.UpdateBalanceByTransaction(accountBalance, transaction);
+                // idempotency check
+                if (transaction.Status.Equals(ETransactionStatus.Processed))
+                    return;
 
-                if (isUpdated)
-                    transaction.MarkAsProcessed(accountBalance.CurrentTotal);
-                else
-                    transaction.MarkAsFailed();
+                var account =
+                    await _cashFlowDbContext.Accounts
+                        .Include(x => x.Balance)
+                        .Where(x => x.Id == accountId)
+                        .FirstOrDefaultAsync(cancellationToken)
+                    ?? throw new InvalidOperationException($"Account id {transaction.AccountId} not found.");
 
-                _cashFlowDbContext.AccountBalances.Update(accountBalance);
-                _cashFlowDbContext.Transactions.Update(transaction);
+                var accountDailyBalance =
+                    await _accountCachedRepository
+                        .GetOrCreateDailyBalanceAsync(accountId, transaction.GetDateCreated());
 
-                await _cashFlowDbContext.SaveChangesAsync(cancellationToken);
+                await _accountCachedRepository
+                    .UpdateBalancesAndTransacionAsync(account.Balance, accountDailyBalance, transaction, cancellationToken);
             }
         }
 
-        private static string GetLockKey(Guid accountId) => string.Format(LockKeyFormat, accountId);
+        private static string GetLockKey(Guid userId) => string.Format(LockKeyFormat, userId);
+
+
     }
 }

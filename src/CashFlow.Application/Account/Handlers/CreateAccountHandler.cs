@@ -1,10 +1,9 @@
 ﻿using CashFlow.Application.Common.Handlers;
-using CashFlow.Application.Common.Interfaces;
 using ErrorOr;
 
 namespace CashFlow.Application.Account.Handlers
 {
-    public record CreateAccountRequest(string Name, decimal InitialBalance = 0);
+    public record CreateAccountRequest(string Name);
 
     public record CreatedAccountResponse(Guid Id);
 
@@ -18,11 +17,10 @@ namespace CashFlow.Application.Account.Handlers
 
     public class CreateAccountHandler : ICreateAccountHandler
     {
-        private readonly ICashFlowDbContext _dbContext;
-
-        public CreateAccountHandler(ICashFlowDbContext dbContext)
+        private readonly IAccountCachedRepository _accountRepository;
+        public CreateAccountHandler(IAccountCachedRepository accountRepository)
         {
-            _dbContext = dbContext;
+            _accountRepository = accountRepository;
         }
 
         public async Task<ErrorOr<CreatedAccountResponse>> HandleAsync(Guid userId, CreateAccountRequest request, CancellationToken cancellationToken)
@@ -32,14 +30,7 @@ namespace CashFlow.Application.Account.Handlers
 
             entity.IdentityUserId = userId;
 
-            await _dbContext.Accounts.AddAsync(entity, cancellationToken);
-            await _dbContext.AccountBalances
-                .AddAsync(new() {
-                    Account = entity,
-                    CurrentTotal = request.InitialBalance
-                }, cancellationToken);
-
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            await _accountRepository.CreateAccountAsync(entity, cancellationToken);
 
             return new CreatedAccountResponse(entity.Id);
         }

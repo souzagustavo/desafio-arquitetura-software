@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
-namespace CashFlow.Api.Endpoints.Account
+namespace CashFlow.Api.Endpoints.Accounts
 {
     public static class CreateEndpoint
     {

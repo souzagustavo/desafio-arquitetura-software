@@ -3,7 +3,7 @@ using CashFlow.Application.Transactions.Handlers;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
-namespace CashFlow.Api.Endpoints.Transactions
+namespace CashFlow.Api.Endpoints.Accounts.Transactions
 {
     public static class GetPagedEndpoint
     {
@@ -25,7 +25,7 @@ namespace CashFlow.Api.Endpoints.Transactions
         private static async Task<IResult> GetPagedAsync(
             [FromRoute] Guid accountId,
             [AsParameters] GetPagedTransactionsQuery query,
-            IGetPagedTransactionHandler handler,
+            [FromServices] IGetPagedTransactionHandler handler,
             ClaimsPrincipal claims,
             CancellationToken cancellationToken)
         {

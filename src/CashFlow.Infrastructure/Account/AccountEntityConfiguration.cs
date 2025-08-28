@@ -10,8 +10,11 @@ namespace CashFlow.Infrastructure.Account
         {
             builder.HasMany(a => a.Transactions)
                    .WithOne(t => t.Account)
-                   .HasForeignKey(t => t.AccountId)
-                   .OnDelete(DeleteBehavior.Cascade);
+                   .HasForeignKey(t => t.AccountId);
+
+            builder.HasMany(a => a.DailyBalances)
+                    .WithOne(b => b.Account)
+                    .HasForeignKey(b => b.AccountId);
 
             builder.HasOne(a => a.Balance)
                    .WithOne(b => b.Account)

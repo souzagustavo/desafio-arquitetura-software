@@ -3,7 +3,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
-namespace CashFlow.Api.Endpoints.Transactions;
+namespace CashFlow.Api.Endpoints.Accounts.Transactions;
 public static class CreateEndpoint
 {
     public static IEndpointRouteBuilder MapCreateTransactionEndpoint(this IEndpointRouteBuilder app)
@@ -26,9 +26,9 @@ public static class CreateEndpoint
     private static async Task<IResult> CreateAsync(
         [FromRoute] Guid accountId,
         [FromBody] CreateTransactionRequest request,
-        IValidator<CreateTransactionRequest> validator,
+        [FromServices] IValidator<CreateTransactionRequest> validator,
         ClaimsPrincipal claims,
-        ICreateTransationHandler handler,
+        [FromServices] ICreateTransationHandler handler,
         CancellationToken cancellationToken)
     {
         var userId = claims.GetUserIdAsValidatedGuid();

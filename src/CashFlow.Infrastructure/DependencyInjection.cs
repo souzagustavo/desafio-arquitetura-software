@@ -1,9 +1,9 @@
-﻿using CashFlow.Application.Common.Interfaces;
-using CashFlow.Application.Common.Storage;
+﻿using CashFlow.Application.Account;
+using CashFlow.Application.Common.Interfaces;
 using CashFlow.Application.Transactions;
+using CashFlow.Infrastructure.Account;
 using CashFlow.Infrastructure.Common.Cache;
 using CashFlow.Infrastructure.Common.Persistence;
-using CashFlow.Infrastructure.Common.Storage;
 using CashFlow.Infrastructure.Transaction;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -17,11 +17,11 @@ namespace CashFlow.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration)
     {
-        services
-            .AddPersistence(configuration);
-        //.AddStorage();
+        var cs = configuration.GetConnectionString("CashFlowDb");
+
+        services.AddDbContext<ICashFlowDbContext, CashFlowDbContext>(options => options.UseNpgsql(cs));
 
         return services;
     }
@@ -46,21 +46,18 @@ public static class DependencyInjection
         return services;
     }
 
-    private static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddCache(this IServiceCollection services, IConfiguration configuration)
     {
-        var cs = configuration.GetConnectionString("CashFlowDb");
+        services.AddScoped<IAccountCachedRepository, AccountCachedRepository>();
 
-        services.AddDbContext<ICashFlowDbContext, CashFlowDbContext>(options => options.UseNpgsql(cs));
+        services.AddHybridCache();
+
+        services
+            .AddStackExchangeRedisCache(options =>
+             {
+                 options.Configuration = configuration.GetConnectionString("Redis")!;
+             });
 
         return services;
     }
-
-    private static IServiceCollection AddStorage(this IServiceCollection services)
-    {
-        services.AddScoped<IStorageService, StorageService>();
-
-        return services;
-    }
-
-
 }

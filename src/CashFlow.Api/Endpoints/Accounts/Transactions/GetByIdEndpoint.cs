@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
-namespace CashFlow.Api.Endpoints.Transactions;
+namespace CashFlow.Api.Endpoints.Accounts.Transactions;
 
 public static class GetByIdEndpoint
 {
@@ -23,10 +23,11 @@ public static class GetByIdEndpoint
     }
 
     private static async Task<IResult> GetByIdAsync(
+        [FromRoute] Guid accountId,
         [FromRoute] Guid id,
-        IGetTransactionByIdHandler handler,
+        [FromServices] IGetTransactionByIdHandler handler,
         ClaimsPrincipal claims,
-        CancellationToken cancellationToken)
+        [FromServices] CancellationToken cancellationToken)
     {
         var userId = claims.GetUserIdAsValidatedGuid();
 

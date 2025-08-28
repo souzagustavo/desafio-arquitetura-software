@@ -2,6 +2,7 @@
 using CashFlow.Infrastructure;
 using CashFlow.Infrastructure.Common.PubSub;
 using FluentValidation;
+using MassTransit;
 using Microsoft.OpenApi.Models;
 using System.Text.Json.Serialization;
 
@@ -17,13 +18,20 @@ public static class HostingExtensions
             .AddAuthentication("Bearer").AddJwtBearer();
 
         builder.Services
-            .AddInfrastructure(builder.Configuration);
+            .AddPersistence(builder.Configuration)
+            .AddCache(builder.Configuration);
 
         builder.Services
             .AddValidatorsFromAssemblyContaining<CreateTransactionValidator>()
             .RegisterHandlersFromAssemblyContaining(typeof(CreateTransactionHandler));
 
-        builder.Services.AddMassTransitWithRabbitMq();
+        builder.Services.AddMassTransitDefaults(configure =>
+        {
+            configure.UsingRabbitMq((context, cfg) =>
+            {
+                cfg.AddRabbitMqHost(context);                
+            });
+        });
 
         return builder;
     }
