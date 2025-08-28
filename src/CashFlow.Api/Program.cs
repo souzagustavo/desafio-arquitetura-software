@@ -16,6 +16,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 
+    // TODO: Deve ser migrado para executar em pipeline de deploy    
     using var scope = app.Services.CreateScope();
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<CashFlow.Infrastructure.Common.Persistence.CashFlowDbContext>();
