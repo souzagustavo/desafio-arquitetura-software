@@ -55,7 +55,7 @@ cd desafio-arquitetura-software
 ### Via Dotnet Aspire
 _Necessário iniciar ferramenta de Docker_
 ```bash
-cd .\CashFlow.AppHost\
+cd .\src\CashFlow.AppHost\
 
 dotnet run
 ```
