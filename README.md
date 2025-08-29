@@ -7,6 +7,7 @@ Solução para gestão de fluxo de caixa atraves de lançamentos de entrada e sa
 - [Cash Flow](#cash-flow)
   - [Índice](#índice)
   - [Diagrama de Solução](#diagrama-de-solução)
+  - [Fluxo de negócio](#fluxo-de-negócio)
   - [ADRs](#adrs)
   - [Tecnologias e Frameworks](#tecnologias-e-frameworks)
   - [Como executar](#como-executar)
@@ -26,6 +27,10 @@ Um serviço de **Client** deve buscar se registar e fazer login no Identity Serv
 A **Api** é responsável por validar se as chamadas estão autorizadas e se integrar com o cache, banco de dados e bus de messageria.
 
 O **Worker** consome filas do bus de messageria para processar dados que demandam maior poder de processamento de forma assincrona. Ele se integra com o cache e banco de dados.
+
+## Fluxo de negócio
+
+![alt text](./images/business-flow.png)
 
 ## ADRs
 
@@ -55,6 +60,12 @@ cd .\CashFlow.AppHost\
 dotnet run
 ```
 ![alt text](./images/aspire.png)
+
+Acesso as documentações das Apis
+| Url      | Service |
+|----------|---------|
+|https://localhost:7298/swagger | Identity Server Api |
+|https://localhost:7114/swagger | CashFlow Api |
 
 ## Testes
 Para validar a arquitetura e integração dos componentes foram implementados testes e2e utilizando ```Aspire.Hosting.Testing```.

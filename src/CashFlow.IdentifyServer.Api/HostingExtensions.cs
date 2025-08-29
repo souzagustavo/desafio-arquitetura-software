@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
 
 namespace CashFlow.IdentifyServer.Api;
@@ -14,7 +15,19 @@ public static class HostingExtensions
         var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
 
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
+        builder.Services.AddSwaggerGen(options =>
+        {
+            options.SwaggerDoc("v1", new OpenApiInfo
+            {
+                Version = "v1",
+                Title = "Identity Server Api",
+                Contact = new OpenApiContact
+                {
+                    Name = "Gustavo Souza Silva",
+                    Url = new Uri("https://www.linkedin.com/in/gustavo-souza-silva")
+                }
+            });
+        });
 
         builder.Services.AddDatabase(builder.Configuration);
 
