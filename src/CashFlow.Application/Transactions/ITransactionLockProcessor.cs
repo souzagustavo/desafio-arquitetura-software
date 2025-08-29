@@ -2,6 +2,6 @@
 {
     public interface ITransactionLockProcessor
     {
-        Task DoAsync(Guid userId, Guid transactionId, CancellationToken cancellationToken);
+        Task DoAsync(Guid accountId, Guid transactionId, CancellationToken cancellationToken);
     }
 }

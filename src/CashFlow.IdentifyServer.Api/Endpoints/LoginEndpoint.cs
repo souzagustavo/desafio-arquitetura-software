@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
 
 namespace CashFlow.IdentifyServer.Api.Endpoints;
 
@@ -11,7 +14,10 @@ public static class LoginEndpoint
 
     public static WebApplication MapLoginEndpoint(this WebApplication app)
     {
-        app.MapPost("/login", async (LoginRequest req, UserManager<IdentityUser<Guid>> userManager) =>
+        app.MapPost("/login", async (
+            [FromBody]LoginRequest req,
+            [FromServices]  UserManager<IdentityUser<Guid>> userManager,
+            [FromServices] IOptions<JwtSettings> options) =>
         {
             var user = await userManager.FindByEmailAsync(req.Email);
             if (user is null || !await userManager.CheckPasswordAsync(user, req.Password))
@@ -23,15 +29,16 @@ public static class LoginEndpoint
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
             };
 
-            // for testing
-            var key = new SymmetricSecurityKey(HostingExtensions.IssuerSecurityKey);
+            
+            var key = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(options.Value.Key));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
-                //issuer: HostingExtensions.ValidIssuer,
-                //audience: HostingExtensions.ValidAudience,
+                issuer: options.Value.Issuer,
+                audience: options.Value.Audience,
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(6),
+                expires: DateTime.UtcNow.AddHours(1),
                 signingCredentials: creds
             );
 

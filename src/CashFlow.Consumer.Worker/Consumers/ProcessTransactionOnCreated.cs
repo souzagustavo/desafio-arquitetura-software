@@ -19,10 +19,10 @@ namespace CashFlow.Consumer.Worker.Consumers
         {
             _logger.LogInformation("Processing transaction created event for transaction id: {TransactionId}", context.Message.Id);
 
-            var userId = context.Message.AccountId;
+            var accountId = context.Message.AccountId;
             var transactionId = context.Message.Id;
 
-            await _transactionLockProcessor.DoAsync(userId: userId, transactionId: transactionId, context.CancellationToken);
+            await _transactionLockProcessor.DoAsync(accountId: accountId, transactionId: transactionId, context.CancellationToken);
 
             _logger.LogInformation("Finished processing transaction created event for transaction id: {TransactionId}", context.Message.Id);
         }

@@ -1,6 +1,6 @@
 ﻿using CashFlow.IdentifyServer.Api.Database;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -8,40 +8,53 @@ namespace CashFlow.IdentifyServer.Api;
 
 public static class HostingExtensions
 {
-    public static byte[] IssuerSecurityKey { get => Encoding.UTF8.GetBytes("Wn8dKp3rL9mQz7tVx2uB5cY4eG1hJ6kP"); }
-    public static string ValidIssuer = "cashflow-identity-server";
-    public static string ValidAudience = "cashflow-api";
-
     public static WebApplicationBuilder ConfigureServices(this WebApplicationBuilder builder)
     {
+        builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+        var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
+
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
         builder.Services.AddDatabase(builder.Configuration);
 
-        builder.Services
-            .AddIdentityCore<IdentityUser<Guid>>(options =>
-            {
-                options.User.RequireUniqueEmail = true;
-            })
-            .AddEntityFrameworkStores<IdentityServerDbContext>();
-
-        builder.Services.AddAuthentication(x =>
+        var cs = builder.Configuration.GetConnectionString("IdentityServerDb");
+        builder.Services.AddDbContext<IdentityServerDbContext>(opt => opt.UseNpgsql(cs));        
+        builder.Services.AddIdentityCore<IdentityUser<Guid>>(opt =>
         {
-            x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            opt.User.RequireUniqueEmail = true;
+            opt.Password.RequireNonAlphanumeric = false;
         })
-        .AddJwtBearer(x =>
+        .AddEntityFrameworkStores<IdentityServerDbContext>();
+
+        
+        builder.Services.AddAuthorization();
+        builder.Services.AddAuthentication(options =>
         {
-            x.TokenValidationParameters = new TokenValidationParameters
+            options.DefaultAuthenticateScheme = "JwtBearer";
+            options.DefaultChallengeScheme = "JwtBearer";
+        })
+        .AddJwtBearer("JwtBearer", options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
             {
+                ValidateIssuer = true,
+                ValidateAudience = true,
                 ValidateLifetime = true,
-                
-                ValidateIssuerSigningKey = true,                
-                IssuerSigningKey = new SymmetricSecurityKey(IssuerSecurityKey)
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = jwtSettings.Issuer,
+                ValidAudience = jwtSettings.Audience,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key))
             };
         });
 
         return builder;
     }
+}
+
+internal class JwtSettings
+{
+    public string Key { get; set; } = "";
+    public string Issuer { get; set; } = "";
+    public string Audience { get; set; } = "";
 }

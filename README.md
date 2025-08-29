@@ -10,7 +10,6 @@ Solução para gestão de fluxo de caixa atraves de lançamentos de entrada e sa
   - [ADRs](#adrs)
   - [Tecnologias e Frameworks](#tecnologias-e-frameworks)
   - [Como executar](#como-executar)
-    - [Via Docker](#via-docker)
     - [Via Dotnet Aspire](#via-dotnet-aspire)
   - [Próximos passos](#próximos-passos)
     - [Execução migrations em pipeline](#execução-migrations-em-pipeline)

@@ -33,20 +33,21 @@ builder.AddProject<Projects.CashFlow_Consumer_Worker>("cash-flow-consumer-worker
     .WithReference(rabbitmq)
     .WaitFor(rabbitmq);
 
-builder.AddContainer("pgadmin", "dpage/pgadmin4:latest")
-    .WithVolume("pgadmin_data", "/var/lib/pgadmin")
-    .WithEnvironment(context =>
-    {
-        context.EnvironmentVariables["PGADMIN_DEFAULT_EMAIL"] = "admin@admin.com";
-        context.EnvironmentVariables["PGADMIN_DEFAULT_PASSWORD"] = "123456";
-    })
-    .WithEndpoint(name: "pgadmin", scheme: "http", port: 8080, targetPort: 80)
-    .WithReference(cashFlowDb)
-    .WaitFor(cashFlowDb)
-    .WithReference(identityServerDb)
-    .WaitFor(identityServerDb)
-    .WithHttpHealthCheck(endpointName: "pgadmin", path: "/misc/ping");
+//builder.AddContainer("pgadmin", "dpage/pgadmin4:latest")
+//    .WithVolume("pgadmin_data", "/var/lib/pgadmin")
+//    .WithEnvironment(context =>
+//    {
+//        context.EnvironmentVariables["PGADMIN_DEFAULT_EMAIL"] = "admin@admin.com";
+//        context.EnvironmentVariables["PGADMIN_DEFAULT_PASSWORD"] = "123456";
+//    })
+//    .WithEndpoint(name: "pgadmin", scheme: "http", port: 8080, targetPort: 80)
+//    .WithReference(cashFlowDb)
+//    .WaitFor(cashFlowDb)
+//    .WithReference(identityServerDb)
+//    .WaitFor(identityServerDb)
+//    .WithHttpHealthCheck(endpointName: "pgadmin", path: "/misc/ping");
 
 var app = builder.Build();
+
 
 await app.RunAsync();

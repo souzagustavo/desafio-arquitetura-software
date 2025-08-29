@@ -6,8 +6,8 @@ namespace CashFlow.Infrastructure.Common.Cache
 {
     public abstract class CacheRepositoryBase
     {
-        protected const int DefaultCacheDurationInMinutes = 30;
-        protected const int DefaultLocalCacheDurationInSeconds = 15;
+        protected const int DefaultCacheDurationInMinutes = 3;
+        protected const int DefaultLocalCacheDurationInSeconds = 30;
 
         protected readonly HybridCache _hybridCache;
         protected readonly ICashFlowDbContext _cashFlowDbContext;

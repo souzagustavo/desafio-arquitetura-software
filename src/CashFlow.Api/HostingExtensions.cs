@@ -3,7 +3,9 @@ using CashFlow.Infrastructure;
 using CashFlow.Infrastructure.Common.PubSub;
 using FluentValidation;
 using MassTransit;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Text;
 using System.Text.Json.Serialization;
 
 namespace CashFlow.Api;
@@ -15,9 +17,25 @@ public static class HostingExtensions
         builder.AddServiceDefaults();
 
         builder.Services
-            .ConfigureEndpoints()
-            .AddAuthorization()
-            .AddAuthentication("Bearer").AddJwtBearer();
+            .ConfigureEndpoints();
+        
+        var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
+        builder.Services.AddAuthentication("Bearer")
+            .AddJwtBearer("Bearer", options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings.Issuer,
+                    ValidAudience = jwtSettings.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key))
+                };
+            });
+        builder.Services.AddAuthorization();
+
 
         builder.Services
             .AddPersistence(builder.Configuration)

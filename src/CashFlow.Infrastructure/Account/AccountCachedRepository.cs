@@ -33,16 +33,16 @@ public class AccountCachedRepository : CacheRepositoryBase, IAccountCachedReposi
         await _cashFlowDbContext.AccountBalances.AddAsync(accountBalanceEntity, cancellationToken);
         await _cashFlowDbContext.SaveChangesAsync(cancellationToken);
 
-        var accounts = (await _cashFlowDbContext.Accounts
-                .Where(a => a.IdentityUserId == accountEntity.IdentityUserId)
-                .ToListAsync(cancellationToken))
-                .Select(x => _accountMapper.ToGetAccountResponse(x));
-        var userAccountsKey = AccountCacheKeys.AccountsByUserKey(accountEntity.IdentityUserId);
-        await SetToCacheAsync(userAccountsKey, accounts, cancellationToken);
+        //var accounts = (await _cashFlowDbContext.Accounts
+        //        .Where(a => a.IdentityUserId == accountEntity.IdentityUserId)
+        //        .ToListAsync(cancellationToken))
+        //        .Select(x => _accountMapper.ToGetAccountResponse(x));
+        //var userAccountsKey = AccountCacheKeys.AccountsByUserKey(accountEntity.IdentityUserId);
+        //await SetToCacheAsync(userAccountsKey, accounts, cancellationToken);
 
-        var accountBalanceResponse = _accountMapper.ToGetAccountBalanceResponse(accountBalanceEntity);
-        var balanceAccountKey = AccountCacheKeys.AccountBalanceKey(accountBalanceEntity.Id);
-        await SetToCacheAsync(balanceAccountKey, accountBalanceResponse, cancellationToken);
+        //var accountBalanceResponse = _accountMapper.ToGetAccountBalanceResponse(accountBalanceEntity);
+        //var balanceAccountKey = AccountCacheKeys.AccountBalanceKey(accountBalanceEntity.Id);
+        //await SetToCacheAsync(balanceAccountKey, accountBalanceResponse, cancellationToken);
     }
 
     public async Task UpdateBalancesAndTransacionAsync(AccountBalanceEntity balance,

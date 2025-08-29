@@ -22,8 +22,9 @@ if (app.Environment.IsDevelopment())
     var context = services.GetRequiredService<CashFlow.Infrastructure.Common.Persistence.CashFlowDbContext>();
     await context.Database.MigrateAsync();
 }
-
-app.UseHttpsRedirection();
+// https://stackoverflow.com/questions/79682092/apphost-testing-authorization-header-missing
+// Comentado por conta de um bug no aspire testing
+//app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
