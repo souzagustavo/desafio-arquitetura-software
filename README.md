@@ -11,6 +11,7 @@ Solução para gestão de fluxo de caixa atraves de lançamentos de entrada e sa
   - [Tecnologias e Frameworks](#tecnologias-e-frameworks)
   - [Como executar](#como-executar)
     - [Via Dotnet Aspire](#via-dotnet-aspire)
+  - [Testes](#testes)
   - [Próximos passos](#próximos-passos)
     - [Execução migrations em pipeline](#execução-migrations-em-pipeline)
     - [Criar serviço de Jobs](#criar-serviço-de-jobs)
@@ -45,17 +46,27 @@ git clone https://github.com/souzagustavo/desafio-arquitetura-software.git
 
 cd desafio-arquitetura-software
 ```
-### Via Docker
-```bash
-docker-compose up --build
-```
 
 ### Via Dotnet Aspire
+_Necessário iniciar ferramenta de Docker_
 ```bash
 cd .\CashFlow.AppHost\
 
 dotnet run
 ```
+![alt text](./images/aspire.png)
+
+## Testes
+Para validar a arquitetura e integração dos componentes foram implementados testes e2e utilizando ```Aspire.Hosting.Testing```.
+_Necessário iniciar ferramenta de Docker_
+```bash
+cd  \tests\CashFlow.AppHost.Tests\
+
+dotnet test
+```
+Principal cenário de teste que garante transações e saldo atualizado corretamente.
+![alt text](./images/test-e2e.png)
+
 
 ## Próximos passos
 

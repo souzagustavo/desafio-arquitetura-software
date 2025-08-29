@@ -20,8 +20,8 @@ public class CashFlowAppsFixture : IAsyncLifetime
         _appBuilder = await DistributedApplicationTestingBuilder.CreateAsync<Projects.CashFlow_AppHost>(cancellationToken);
         _appBuilder.Services.AddLogging(logging =>
         {
-            logging.SetMinimumLevel(LogLevel.Information);
-            logging.AddFilter(_appBuilder.Environment.ApplicationName, LogLevel.Information);
+            logging.SetMinimumLevel(LogLevel.Debug);
+            logging.AddFilter(_appBuilder.Environment.ApplicationName, LogLevel.Debug);
             logging.AddFilter("Aspire.", LogLevel.Debug);
         });
         _appBuilder.Services.ConfigureHttpClientDefaults(clientBuilder =>
