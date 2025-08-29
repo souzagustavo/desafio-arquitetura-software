@@ -55,7 +55,7 @@ cd desafio-arquitetura-software
 ### Via Dotnet Aspire
 _Necessário iniciar ferramenta de Docker_
 ```bash
-cd .\src\CashFlow.AppHost\
+cd \src\CashFlow.AppHost\
 
 dotnet run
 ```
@@ -71,7 +71,7 @@ Acesso as documentações das Apis
 Para validar a arquitetura e integração dos componentes foram implementados testes e2e utilizando ```Aspire.Hosting.Testing```.
 _Necessário iniciar ferramenta de Docker_
 ```bash
-cd  \tests\CashFlow.AppHost.Tests\
+cd \tests\CashFlow.AppHost.Tests\
 
 dotnet test
 ```
