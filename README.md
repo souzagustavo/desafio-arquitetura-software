@@ -30,7 +30,7 @@ O **Worker** consome filas do bus de messageria para processar dados que demanda
 
 ## Fluxo de negócio
 
-![alt text](./images/business-flow.png)
+![alt text](./images/business-flow1.png)
 
 ## ADRs
 
